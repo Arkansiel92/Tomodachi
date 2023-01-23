@@ -3,14 +3,19 @@ const app = express();
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
+const fs = require('fs');
+const path = require('path');
 
 app.use(cors());
 
-const server = http.createServer(app);
+const server = http.createServer({
+    key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
+}, app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://192.168.1.37:3000", // IP on private network (localhost works too)
+        origin: "https://192.168.1.37:3000", // IP on private network (localhost works too)
         method: ["GET", "POST"]
     }
 });
@@ -273,30 +278,39 @@ const agentTrouble = [
 io.on("connection", (socket) => {
     console.log('CONNECTION :', socket.id);
 
-    socket.on('clear', () => {
-        const rooms = [...socket.rooms];
+    socket.on('disconnect', () => {
+        console.log('DISCONNECT :', socket.id)
+    })
+    
 
-        rooms.forEach((room) => {
-            if (room !== socket.id) {
-                socket.leave(room);
-            }
-        })
+    // FUNCTION WICH OF US
+
+    socket.on('getQuestion', (previousQuestion) => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        if(hub.questions.length <= 1) {
+            hub.questions = wichOfUs;
+        }
+
+        for (let i = 0; i < hub.votes.length; i++) {
+            hub.votes[i] = '';   
+        }
+
+        if(previousQuestion === '') {
+            var index = Math.floor(Math.random() * hub.questions.length)
+            var question = hub.questions[index]
+
+            hub.questions.splice(index, index - 1);
+    
+            io.to(socket.room).emit('getQuestion', question);
+            io.to(socket.room).emit('getRoom', hub);
+        }
     })
 
-    socket.on('redirectToGame', () => {
-        io.to(socket.room).emit('redirectToGame');
-    })
+    // FUNCTION AGENT TROUBLE
 
     socket.on('getPlaces', () => {
         io.to(socket.room).emit('getPlaces', agentTrouble);
-    })
-
-    socket.on('getRoom', () => {
-        const hub = io.sockets.adapter.rooms.get(socket.room);
-        hub.sockets = [...hub.values()];
-        console.log(hub);
-
-        io.to(socket.room).emit('getRoom', hub);
     })
 
     socket.on('nextRound', () => {
@@ -310,23 +324,6 @@ io.on("connection", (socket) => {
 
         io.to(socket.room).emit('nextRound');
         io.to(socket.room).emit('getRoom');
-    })
-
-    socket.on('vote', impostor => {
-        const hub = io.sockets.adapter.rooms.get(socket.room);
-
-        for (let i = 0; i < hub.sockets.length; i++) {
-            if (hub.sockets[i] === socket.id) {
-                hub.votes[i] = impostor;
-            };     
-        };
-
-        if (hub.votes.includes('') === false) {
-            io.to(socket.room).emit('reveal', hub.spy);
-            io.to(socket.room).emit('finish', `l'espion était : ${hub.spy}`);
-        }
-
-        console.log(hub.votes);
     })
 
     socket.on('findPlace', place => {
@@ -347,14 +344,12 @@ io.on("connection", (socket) => {
         const hub = io.sockets.adapter.rooms.get(id);
         const roles = ['Agent', 'Espion'];
 
-        console.log("attribution des rôles !");
-
         for (let i = 0; i < hub.sockets.length; i++) {
 
             if (hub.roles.length === hub.sockets.length || hub.professions.length === hub.sockets.length) {
                 return;
             };
-            
+
             let roleSocket = roles[Math.floor(Math.random() * roles.length)];
             let profession = hub.place.professions[Math.floor(Math.random() * hub.professions.length)];
 
@@ -363,11 +358,11 @@ io.on("connection", (socket) => {
             };
 
             // check if there is already at least one Spy in the game
-            if ((hub.roles[i] + 1) === hub.sockets.length && hub.roles.includes('Espion') === false) { 
+            if ((hub.roles[i] + 1) === hub.sockets.length && hub.roles.includes('Espion') === false) {
                 roleSocket = 'Espion';
             }
 
-            if(roleSocket === 'Espion') {
+            if (roleSocket === 'Espion') {
                 profession = hub.place.spyProfession;
                 hub.spy = hub.players[i]
             }
@@ -381,19 +376,90 @@ io.on("connection", (socket) => {
 
             hub.roles.push(roleSocket);
             hub.professions.push(profession);
-            hub.votes.push('');
-
-
+            
             io.to(hub.sockets[i]).emit('profession', profession);
             io.to(hub.sockets[i]).emit('role', roleSocket);
         }
     })
 
-    socket.on('join', ({id, pseudo}) => {
+
+    // FUNCTION ROOM
+
+    socket.on('vote', impostor => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        for (let i = 0; i < hub.sockets.length; i++) {
+            if (hub.sockets[i] === socket.id) {
+                hub.votes[i] = impostor;
+            };
+        };
+
+        if (hub.votes.includes('') === false) {
+            if (hub.game === "Agent Trouble") {
+                io.to(socket.room).emit('reveal', hub.spy);
+                io.to(socket.room).emit('finish', `l'espion était : ${hub.spy}`);
+            }
+
+            if (hub.game === "Wich of us") {
+                var player = {name: '', count: 0};
+                for (let i = 0; i < hub.players.length; i++) {
+                    var count = hub.votes.filter(vote => vote === hub.players[i]).length;
+                    //console.log('Vote pour ', hub.players[i], ' : ' , hub.votes.filter(vote => vote === hub.players[i]).length);
+                    if (count > player.count) {
+                        player.name = hub.players[i];
+                        player.count = count;
+                    }
+                }
+                io.to(socket.room).emit('target', player);
+            }
+        }
+
+        io.to(socket.room).emit('getRoom', hub)
+    })
+
+    socket.on('getRoom', () => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+        hub.sockets = [...hub.values()];
+        //console.log(hub);
+
+        io.to(socket.room).emit('getRoom', hub);
+    })
+
+    socket.on('clear', () => {
+        const rooms = [...socket.rooms];
+
+        rooms.forEach((room) => {
+            if (room !== socket.id) {
+                socket.leave(room);
+                console.log(`Clear de la room : ${room} du socket : ${socket.id}`)
+            }
+        })
+    })
+
+    socket.on('redirectToGame', () => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+        var game = null;
+        
+        switch (hub.game) {
+            case 'Agent Trouble':
+                game = 'AgentTrouble';
+                break;
+            case 'Wich of us':
+                game = 'WichOfUs';
+                break;
+            default:
+                break;
+        }
+
+        io.to(socket.room).emit('redirectToGame', game);
+    })
+
+    socket.on('join', ({ id, pseudo }) => {
         const hub = io.sockets.adapter.rooms.get(id);
 
         if (hub.size < hub.nbPlayers) {
             hub.players.push(pseudo);
+            hub.votes.push('');
             socket.room = id;
             socket.name = pseudo;
             socket.join(id);
@@ -409,31 +475,42 @@ io.on("connection", (socket) => {
         const room = [...socket.rooms.values()];
 
         if (room.includes(id)) {
-            socket.emit('isRoom', {isRoom : true})
+            socket.emit('isRoom', { isRoom: true })
         } else {
-            socket.emit('isRoom', {isRoom : false});
+            socket.emit('isRoom', { isRoom: false });
         }
     })
 
-    socket.on('setRoom', ({id, players, pseudo}) => {
+    socket.on('setRoom', ({ id, players, pseudo, game }) => {
         socket.room = id;
         socket.name = pseudo
         socket.join(id);
-        
+
+        game = 'Wich of us';
 
         const hub = io.sockets.adapter.rooms.get(id);
+        hub.game = game;
         hub.status = 'private';
         hub.author = socket.id;
         hub.nbPlayers = players;
         hub.players = [socket.name];
-        hub.place = agentTrouble[Math.floor(Math.random() * agentTrouble.length)];
-        hub.roles = [];
-        hub.professions = [];
-        hub.votes = [];
-    })
+        hub.votes = [''];
 
-    socket.on('disconnect', () => {
-        console.log('DISCONNECT :', socket.id)
+        switch (game) {
+            case 'Agent Trouble':
+                hub.describe = '«Un mot de trop peut couler un bateau.», ce dicton de l’armée pourrait être la devise de Agent Trouble. En début de manche, les joueurs reçoivent secrètement une carte leur indiquant un même lieu, à l’exception d’un des joueurs qui reçoit une carte Espion. Ils se posent ensuite des questions pour tenter de savoir qui est qui : «il fait chaud non ? As-tu reçu ta paie ?» L’espion ne sait pas où il est. Il doit donc être attentif aux échanges pour tenter de le découvrir et parvenir à répondre aux questions qui lui seront posées ! N’importe quand, un joueur peut accuser quelqu’un d’être l’espion. S’il est percé à jour, les agents ont gagné. De son côté, l’espion peut mettre fin à la manche dès qu’il pense avoir découvert le lieu où elle se déroule. Agent trouble est un jeu de suspicion et de bluff qui ne ressemble à aucun autre : il faudra peser chaque mot pour ne pas trop se dévoiler.';
+                hub.place = agentTrouble[Math.floor(Math.random() * agentTrouble.length)];
+                hub.roles = [];
+                hub.professions = [];
+                break;
+            case 'Wich of us':
+                hub.describe = '« L\'amitié sans confiance, c\'est une fleur sans parfum. ». Connaissez-vous vraiment vos amis ? C\'est ce que vous allez voir avec Qui de nous ! Enchainez les questions et votez pour la bonne personne ! La personne votée aura naturellement le droit de se défendre, à vous de juger si elle vous a convaincu ! ';
+                hub.questions = wichOfUs;
+                break;
+            default:
+                break;
+        }
+
     })
 });
 

@@ -4,7 +4,8 @@ import {socket, socketContext} from './context/socket';
 import Room from './pages/Room';
 import Invitation from './pages/Invitation';
 import Jerk from './pages/Jerk';
-import Game from './pages/Game';
+import Agent from './pages/Agent';
+import Wich from './pages/Wich';
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home/>}/>
             <Route path=":id" element={<Room/>}/>
-            <Route path=':id/game' element={<Game/>}/>
+            <Route path=':id/AgentTrouble' element={<Agent/>}/>
+            <Route path=':id/WichOfUs' element={<Wich/>}/>
             <Route path="invite/:id" element={<Invitation/>}/>
             <Route path="jerk" element={<Jerk/>}/>
           </Routes>

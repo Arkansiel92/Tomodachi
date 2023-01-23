@@ -45,28 +45,28 @@ const Home: React.FC = () => {
                 alert !== '' ? <div className='container text-center alert alert-danger'>{alert}</div> : <div></div>
             }   
             <div className="container border-bottom mb-5">
-                <h1 className="text-center">Agent Trouble</h1>
+                <h1 className="text-center">Qui de nous ?</h1>
             </div>
             <div className="m-5">
                 <div className="w-25 card m-auto text-center">
                     <div>
                         <div className="card-header text-center"><h3>Partie privée</h3></div>
                             <div className="card-body">
-                            <div className="form-group px-5 mt-3">
+                            <div className="form-group mt-3">
                                 <input type="text" className='w-75 m-auto text-center form-control' value={pseudo} placeholder="Entrez votre nom" onChange={(e) => {setPseudo(e.target.value)}} />
                             </div>   
-                            <div className="form-group px-5">
+                            <div className="form-group">
                             <select className='w-75 my-3 m-auto form-select' value={players} name="players" onChange={(e) => {setPlayers(Number(e.target.value))}}>
                                 <option value="3">3 joueurs</option>
                                 <option value="4">4 joueurs</option>
                                 <option value="5">5 joueurs</option>
                                 <option value="6">6 joueurs</option>
                             </select>
-                            <select name="game" className='w-75 my-3 m-auto form-select'>
+                            {/* <select name="game" className='w-75 my-3 m-auto form-select'>
                                 <option value="0">Choix du jeu</option>
                                 <option value="agent-trouble">Agent Trouble</option>
                                 <option value="wich-of-us">Qui de nous ?</option>
-                            </select>
+                            </select> */}
                             </div>
                             <div className="">
                                 {

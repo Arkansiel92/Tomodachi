@@ -10,6 +10,8 @@ type Params = {
 interface RoomProps {
     status: string,
     author: string,
+    game: string,
+    describe: string,
     nbPlayers: number,
     players: string[],
     sockets: string[]
@@ -23,7 +25,11 @@ const Room: React.FC = () => {
     const [room, setRoom] = useState<RoomProps>();
 
     socket.on('redirectToGame', () => {
-        navigate(`game?r=${id}`);
+        if (room?.game === "Agent Trouble") {
+            navigate(`AgentTrouble?r=${id}g=${room?.game}`);
+        } else if (room?.game === "Wich of us") {
+            navigate(`WichOfUs?r=${id}g=${room?.game}`);
+        }
     })
 
     useEffect((): void => {
@@ -46,7 +52,7 @@ const Room: React.FC = () => {
         <div>
             <NavBar />
             <div className="container mb-5">
-                <h1 className="text-center border-bottom m-5 p-3">Agent Trouble</h1>
+                <h1 className="text-center border-bottom m-5 p-3">{room?.game}</h1>
                 <div className="card m-auto w-50 text-center">
                     <div className="card-header">
                         Lien d'invitation
@@ -65,7 +71,7 @@ const Room: React.FC = () => {
                             </li>
                         ))}
                         {
-                            socket.id === room?.author
+                            socket.id === room?.author && room?.sockets.length === room?.nbPlayers
                                 ? <button className='m-3 btn btn-warning' onClick={() => { socket.emit('redirectToGame') }}>Prêt</button>
                                 : <button disabled className='m-3 btn btn-warning'>Prêt</button>
                         }
@@ -73,10 +79,9 @@ const Room: React.FC = () => {
                 </div>
                 <div className="col-7">
                     <div className="card">
-                        <div className="card-title text-center">Règle : Agent Trouble</div>
+                        <div className="card-title text-center">Règle : {room?.game}</div>
                         <div className="card-body">
-                            «Un mot de trop peut couler un bateau.», ce dicton de l’armée pourrait être la devise de Agent Trouble.
-                            En début de manche, les joueurs reçoivent secrètement une carte leur indiquant un même lieu, à l’exception d’un des joueurs qui reçoit une carte Espion. Ils se posent ensuite des questions pour tenter de savoir qui est qui : «il fait chaud non ? As-tu reçu ta paie ?» L’espion ne sait pas où il est. Il doit donc être attentif aux échanges pour tenter de le découvrir et parvenir à répondre aux questions qui lui seront posées ! N’importe quand, un joueur peut accuser quelqu’un d’être l’espion. S’il est percé à jour, les agents ont gagné. De son côté, l’espion peut mettre fin à la manche dès qu’il pense avoir découvert le lieu où elle se déroule. Agent trouble est un jeu de suspicion et de bluff qui ne ressemble à aucun autre : il faudra peser chaque mot pour ne pas trop se dévoiler.
+                            {room?.describe}
                         </div>
                     </div>
                 </div>

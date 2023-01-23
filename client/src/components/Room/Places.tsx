@@ -1,4 +1,4 @@
-import {Place} from "../../pages/Game";
+import {Place} from "../../pages/Agent";
 import { ExtendedSocket } from "../../context/socket";
 
 interface Props {
