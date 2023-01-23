@@ -1,0 +1,22 @@
+@font-face {
+    font-family: "JosefinSans-Bold";
+    src: url("./fonts/JosefinSans-Bold.ttf");
+}
+
+body {
+    background-color: #383848;
+    color: #b4c5bb;
+    font-family: "JosefinSans-Bold";
+}
+
+.card  {
+    background-color: #23232C;
+}
+
+.list-group-item {
+    background-color: #383848;
+}
+
+h1 h2 h3 h4 h5 h6 {
+    color: #b4c5bb;
+}
