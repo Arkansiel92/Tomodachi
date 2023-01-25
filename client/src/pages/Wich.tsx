@@ -94,7 +94,7 @@ const Wich: React.FC = () => {
                     {
                         target.name !== ''
                         ? <div className="my-5">
-                            <h1>Le groupe a voté pour {target.name} avec {target.count} voix !</h1>
+                            <h1>Le groupe a voté pour {target.name} !</h1>
                             {
                                 socket.id === room?.author
                                 ? <button className="btn btn-warning" onClick={ () => {setQuestion(''); socket.emit('getQuestion')} }>Prochain round</button>

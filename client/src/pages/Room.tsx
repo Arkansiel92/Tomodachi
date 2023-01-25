@@ -57,7 +57,7 @@ const Room: React.FC = () => {
                     <div className="card-header">
                         Lien d'invitation
                     </div>
-                    <div className="card-body">
+                    <div className="card-body p-5">
                         {window.origin}/invite/{id}
                     </div>
                 </div>
@@ -67,7 +67,7 @@ const Room: React.FC = () => {
                     <ul className="list-group list-group-flush">
                         {room?.players.map((player: string, index: number) => (
                             <li key={index} className="list-group-item">
-                                <h3>{player}</h3>
+                                <h3 style={{color: '#b4c5bb'}}>{player}</h3>
                             </li>
                         ))}
                         {

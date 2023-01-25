@@ -17,7 +17,7 @@ const Home: React.FC = () => {
     const socket = useContext<ExtendedSocket>(socketContext);
     const navigate = useNavigate();
     const [pseudo, setPseudo] = useState<string>('');
-    const [players, setPlayers] = useState<number>(3);
+    const [players, setPlayers] = useState<number>(2);
     const [alert, setAlert] = useState<string>('');
 
     socket.on('redirectToSettings', (id: string) => {
@@ -53,10 +53,11 @@ const Home: React.FC = () => {
                         <div className="card-header text-center"><h3>Partie privée</h3></div>
                             <div className="card-body">
                             <div className="form-group mt-3">
-                                <input type="text" className='w-75 m-auto text-center form-control' value={pseudo} placeholder="Entrez votre nom" onChange={(e) => {setPseudo(e.target.value)}} />
+                                <input type="text" className='w-75 m-auto form-control' value={pseudo} placeholder="Entrez votre nom" onChange={(e) => {setPseudo(e.target.value)}} />
                             </div>   
                             <div className="form-group">
                             <select className='w-75 my-3 m-auto form-select' value={players} name="players" onChange={(e) => {setPlayers(Number(e.target.value))}}>
+                                <option value="2">2 joueurs</option>
                                 <option value="3">3 joueurs</option>
                                 <option value="4">4 joueurs</option>
                                 <option value="5">5 joueurs</option>
