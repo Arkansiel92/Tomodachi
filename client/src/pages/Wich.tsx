@@ -98,7 +98,7 @@ const Wich: React.FC = () => {
                             {
                                 socket.id === room?.author
                                 ? <button className="btn btn-warning" onClick={ () => {setQuestion(''); socket.emit('getQuestion')} }>Prochain round</button>
-                                : <button className="btn btn-warning" disabled>Prochain round</button>
+                                : ""
                             }
                         </div>
                         : ""

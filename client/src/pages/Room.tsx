@@ -55,10 +55,10 @@ const Room: React.FC = () => {
                 <h1 className="text-center border-bottom m-5 p-3">{room?.game}</h1>
                 <div className="card m-auto w-50 text-center">
                     <div className="card-header">
-                        Lien d'invitation
+                        Identifiant
                     </div>
-                    <div className="card-body p-5">
-                        {window.origin}/invite/{id}
+                    <div className="card-body">
+                        {id}
                     </div>
                 </div>
             </div>
