@@ -39,8 +39,8 @@ const wichOfUs = [
     "a le plus envie de baiser",
     "est le plus charismatique",
     "déteste le plus son métier/ses études",
-    "est le meilleur à fortnite",
-    "est le meilleur à Apex Legends",
+    "est le meilleur au MMO",
+    "est le meilleur au FPS",
     "est le meilleur à Rocket League",
     "tiens le mieux l'alcool",
     "pourrait coucher avec la première meuf qu'il voit",
@@ -84,7 +84,7 @@ const wichOfUs = [
     "aime le plus la musique",
     "est le plus susceptible de mourir en premier",
     "est le plus rancunier",
-    "a le plus de tatouage",
+    "a le plus de tatouages",
     "pourrait partir à l'autre bout du monde pour un(e) meuf/mec",
     "est le meilleur dragueur",
     "est le meilleur menteur",
@@ -301,6 +301,8 @@ io.on("connection", (socket) => {
             var question = hub.questions[index]
 
             hub.questions.splice(index, index - 1);
+
+            console.log(hub.questions);
     
             io.to(socket.room).emit('getQuestion', question);
             io.to(socket.room).emit('getRoom', hub);

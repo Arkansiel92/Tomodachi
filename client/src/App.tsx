@@ -8,6 +8,11 @@ import Agent from './pages/Agent';
 import Wich from './pages/Wich';
 
 function App() {
+
+  if (navigator.userAgent.match(/mobile/i)) {
+    window.orientation.toFixed();
+  }
+
   return (
     <div>
       <socketContext.Provider value={socket}>

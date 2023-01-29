@@ -51,6 +51,11 @@ const Home: React.FC = () => {
             {
                 alert !== '' ? <div className='container text-center alert alert-danger'>{alert}</div> : <div></div>
             }   
+            {
+                navigator.userAgent.match(/mobile/i)
+                ? <p>Je suis sur téléphone</p>
+                : <p>Je suis sur ordinateur</p>
+            }
             <div className="container border-bottom mb-5">
                 <h1 className="text-center">Qui de nous ?</h1>
             </div>
