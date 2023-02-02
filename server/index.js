@@ -1,21 +1,20 @@
 const express = require('express');
 const app = express();
-const http = require('http');
+const https = require('https');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const fs = require('fs');
-const path = require('path');
 
 app.use(cors());
 
-const server = http.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
+const server = https.createServer({
+    key: fs.readFileSync('cert/key.pem'),
+    cert: fs.readFileSync('cert/cert.pem')
 }, app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://192.168.1.37:3000", // IP on private network (localhost works too)
+        origin: "*", 
         method: ["GET", "POST"]
     }
 });
