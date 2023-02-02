@@ -9,7 +9,10 @@ interface RoomProps {
     nbPlayers: number,
     players: string[],
     sockets: string[],
-    votes: string[]
+    votes: string[],
+    anonymous: boolean,
+    self: boolean
+    rounds: number,
 }
 
 interface target {

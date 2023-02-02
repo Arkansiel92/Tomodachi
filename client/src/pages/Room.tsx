@@ -14,7 +14,10 @@ interface RoomProps {
     describe: string,
     nbPlayers: number,
     players: string[],
-    sockets: string[]
+    sockets: string[],
+    anonymous: boolean,
+    self: boolean,
+    rounds: number
 }
 
 const Room: React.FC = () => {
@@ -23,14 +26,47 @@ const Room: React.FC = () => {
     const { id } = useParams<Params>();
     const navigate = useNavigate();
     const [room, setRoom] = useState<RoomProps>();
+    const [rounds, setRounds] = useState<number>(10);
+    const [anonymous, setAnonymous] = useState<boolean>(true);
+    const [self, setSelf] = useState<boolean>(true);
 
     socket.on('redirectToGame', () => {
         if (room?.game === "Agent Trouble") {
             navigate(`AgentTrouble?r=${id}g=${room?.game}`);
-        } else if (room?.game === "Wich of us") {
+        } else if (room?.game === "Qui de nous ?") {
             navigate(`WichOfUs?r=${id}g=${room?.game}`);
         }
     })
+
+    const handleRounds = (rounds: string) => {
+        setRounds(Number(rounds));
+
+        socket.emit('setRounds', rounds);
+    }
+
+    const handleAnonymous = () => {
+        if (anonymous === true) {
+            setAnonymous(false);
+        } else {
+            setAnonymous(true);
+        }
+
+        console.log(anonymous);
+
+        socket.emit('setAnonymous', anonymous);
+    }
+
+    const handleSelf = () => {
+        if (self === true) {
+            setSelf(false);
+        } else {
+            setSelf(true);
+        }
+
+        console.log(self);
+
+        socket.emit('setSelf', self);
+    }
 
     useEffect((): void => {
         socket.emit('isRoom', id);
@@ -79,9 +115,41 @@ const Room: React.FC = () => {
                 </div>
                 <div className="col-7">
                     <div className="card">
-                        <div className="card-title text-center">Règle : {room?.game}</div>
+                        <div className="card-title text-center">{room?.game}</div>
                         <div className="card-body">
+                            <h4 className="my-3 border-bottom">Description</h4>
                             {room?.describe}
+                            <div className="my-3">
+                                <h4 className='my-3 border-bottom'>Règle du jeu</h4>
+                                { 
+                                    socket.id === room?.author
+                                    ? <div>
+                                        <label className='form-label'>Nombre de rounds : {rounds}</label>
+                                        <input type="range" min={5} max={25} className='form-range' onChange={(e) => {handleRounds(e.target.value)}} value={rounds} />
+                                        <div className="form-check form-switch">
+                                            <input type="checkbox" className='form-check-input' onChange={handleAnonymous} />
+                                            <label className="form-check-label">Votes anonymes</label>
+                                        </div>
+                                        <div className="form-check form-switch">
+                                            <input type="checkbox" className='form-check-input' onChange={handleSelf} />
+                                            <label className="form-check-label">Voter pour soi-même</label>
+                                        </div>
+                                    </div>
+                                    : <div>
+                                        <label className='form-label'>Nombre de rounds : {room?.rounds}</label>
+                                        <input type="range" min={5} max={25} className='form-range' disabled value={room?.rounds} />
+                                        <div className="form-check form-switch">
+                                            <input type="checkbox" className='form-check-input' disabled />
+                                            <label className="form-check-label">Votes anonymes</label>
+                                        </div>
+                                        <div className="form-check form-switch">
+                                            <input type="checkbox" className='form-check-input' disabled />
+                                            <label className="form-check-label">Voter pour soi-même</label>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -39,7 +39,7 @@ const wichOfUs = [
     "a le plus envie de baiser",
     "est le plus charismatique",
     "déteste le plus son métier/ses études",
-    "est le meilleur au MMO",
+    "est le meilleur au MMORPG",
     "est le meilleur au FPS",
     "est le meilleur à Rocket League",
     "tiens le mieux l'alcool",
@@ -95,6 +95,7 @@ const wichOfUs = [
     "est le plus influençable",
     "pourrait être youtuber",
     "pourrait être streamer",
+    "s'aime le moins",
     "déteste le plus maël"
 ]
 
@@ -283,7 +284,35 @@ io.on("connection", (socket) => {
     })
     
 
-    // FUNCTION WICH OF US
+    // FUNCTION QUI DE NOUS ?
+
+    socket.on('setRounds', rounds => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        hub.rounds = rounds;
+
+        io.to(socket.room).emit('getRoom', hub);
+    })
+
+    socket.on('setAnonymous', anonymous => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        hub.anonymous = anonymous;
+
+        console.log(socket.room + " anonyme : " + anonymous)
+
+        io.to(socket.room).emit('getRoom', hub);
+    })
+
+    socket.on('setSelf', self => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        hub.self = self;
+
+        console.log(socket.room + " vote pour soi-même : " + self)
+
+        io.to(socket.room).emit('getRoom', hub);
+    })
 
     socket.on('getQuestion', (previousQuestion) => {
         const hub = io.sockets.adapter.rooms.get(socket.room);
@@ -488,7 +517,7 @@ io.on("connection", (socket) => {
         socket.name = pseudo
         socket.join(id);
 
-        game = 'Wich of us';
+        game = 'Qui de nous ?';
 
         const hub = io.sockets.adapter.rooms.get(id);
         hub.game = game;
@@ -505,9 +534,13 @@ io.on("connection", (socket) => {
                 hub.roles = [];
                 hub.professions = [];
                 break;
-            case 'Wich of us':
+            case 'Qui de nous ?':
                 hub.describe = '« L\'amitié sans confiance, c\'est une fleur sans parfum. ». Connaissez-vous vraiment vos amis ? C\'est ce que vous allez voir avec Qui de nous ! Enchainez les questions et votez pour la bonne personne ! La personne votée aura naturellement le droit de se défendre, à vous de juger si elle vous a convaincu ! ';
                 hub.questions = wichOfUs;
+                hub.question = hub.questions[Math.floor(Math.random() * hub.questions.length)];
+                hub.rounds = 10;
+                hub.anonymous = true;
+                hub.self = true;
                 break;
             default:
                 break;

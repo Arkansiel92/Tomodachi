@@ -23,7 +23,7 @@ function App() {
             <Route path=':id/AgentTrouble' element={<Agent/>}/>
             <Route path=':id/WichOfUs' element={<Wich/>}/>
             <Route path="invite/:id" element={<Invitation/>}/>
-            <Route path="jerk" element={<Jerk/>}/>
+            <Route path="/jerk" element={<Jerk/>}/>
           </Routes>
         </BrowserRouter>
       </socketContext.Provider>
