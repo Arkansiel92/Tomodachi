@@ -313,6 +313,23 @@ io.on("connection", (socket) => {
         io.to(socket.room).emit('getRoom', hub);
     })
 
+    socket.on('setQuestion', () => {
+        const hub = io.sockets.adapter.rooms.get(socket.room);
+
+        for (let i = 0; i < hub.votes.length; i++) {
+            hub.votes[i] = '';   
+        }
+
+        if (socket.id === hub.author) {
+            var index = Math.floor(Math.random() * hub.questions.length);
+
+            hub.question = hub.questions[index];
+            hub.questions.splice(index, index - 1);
+
+            io.to(socket.room).emit('getRoom', hub);
+        }
+    })
+
     socket.on('getQuestion', (previousQuestion) => {
         const hub = io.sockets.adapter.rooms.get(socket.room);
 
@@ -544,7 +561,6 @@ io.on("connection", (socket) => {
             default:
                 break;
         }
-
     })
 });
 

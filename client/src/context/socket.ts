@@ -9,7 +9,7 @@ export interface ExtendedSocket extends Socket {
     isTurn?: boolean,
 }
 
-export const socket: ExtendedSocket = io('https://193.70.88.12:3001', {transports: ['websocket']}); // IP on private network (localhost works too)
+export const socket: ExtendedSocket = io('https://192.168.1.37:3001', {transports: ['websocket']}); // IP on private network (localhost works too)
 
 socket.name = '';
 socket.room = null;

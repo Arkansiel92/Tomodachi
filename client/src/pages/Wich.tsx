@@ -9,6 +9,7 @@ interface RoomProps {
     nbPlayers: number,
     players: string[],
     sockets: string[],
+    question: string,
     votes: string[],
     anonymous: boolean,
     self: boolean
@@ -59,9 +60,9 @@ const Wich: React.FC = () => {
             socket.emit('getRoom');
         }
 
-        if (question === '') {
-            socket.emit('getQuestion', question);
-        }
+        // if (question === '') {
+        //     socket.emit('getQuestion', question);
+        // }
     }, [socket, room, question]);
 
     return (
@@ -69,7 +70,7 @@ const Wich: React.FC = () => {
             <NavBar/>
             <div className="text-center my-5">
                 <h1>Qui de nous...</h1>
-                <h2>{question} ?</h2>
+                <h2>{room?.question} ?</h2>
             </div>
             <div className="row container m-auto my-5 text-center">
                 {room?.players.map((player: string, index: number) => (

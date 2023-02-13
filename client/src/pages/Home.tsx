@@ -102,7 +102,7 @@ const Home: React.FC = () => {
                             </div>   
 
                             <div className="form-group my-3">
-                                <input type="text" className='w-100 m-auto form-control' value={room} placeholder="Identifiant" onChange={(e) => {setRoom(e.target.value)}} />
+                                <input type="text" className='w-100 m-auto form-control' value={room} placeholder="ID du lobby" onChange={(e) => {setRoom(e.target.value)}} />
                             </div>
                             {/* <select name="game" className='w-100 my-3 m-auto form-select'>
                                 <option value="0">Choix du jeu</option>
