@@ -1,13 +1,13 @@
 const express = require('express');
 const app = express();
-const https = require('https');
+const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const fs = require('fs');
 
 app.use(cors());
 
-const server = https.createServer({
+const server = http.createServer({
     key: fs.readFileSync('cert/key.pem'),
     cert: fs.readFileSync('cert/cert.pem')
 }, app);
@@ -282,7 +282,6 @@ io.on("connection", (socket) => {
         console.log('DISCONNECT :', socket.id)
     })
     
-
     // FUNCTION QUI DE NOUS ?
 
     socket.on('setRounds', rounds => {
@@ -298,8 +297,6 @@ io.on("connection", (socket) => {
 
         hub.anonymous = anonymous;
 
-        console.log(socket.room + " anonyme : " + anonymous)
-
         io.to(socket.room).emit('getRoom', hub);
     })
 
@@ -307,8 +304,6 @@ io.on("connection", (socket) => {
         const hub = io.sockets.adapter.rooms.get(socket.room);
 
         hub.self = self;
-
-        console.log(socket.room + " vote pour soi-même : " + self)
 
         io.to(socket.room).emit('getRoom', hub);
     })
@@ -503,6 +498,10 @@ io.on("connection", (socket) => {
 
     socket.on('join', ({ id, pseudo }) => {
         const hub = io.sockets.adapter.rooms.get(id);
+
+        if (!hub) {
+            return socket.emit('alert', 'Ce lobby n\'existe pas !');
+        }
 
         if (hub.size < hub.nbPlayers) {
             hub.players.push(pseudo);

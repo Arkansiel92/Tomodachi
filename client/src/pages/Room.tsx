@@ -82,6 +82,7 @@ const Room: React.FC = () => {
                 socket.emit('getRoom');
             }
         })
+
     }, [socket, id, navigate])
 
     return (
@@ -138,14 +139,8 @@ const Room: React.FC = () => {
                                     : <div>
                                         <label className='form-label'>Nombre de rounds : {room?.rounds}</label>
                                         <input type="range" min={5} max={25} className='form-range' disabled value={room?.rounds} />
-                                        <div className="form-check form-switch">
-                                            <input type="checkbox" className='form-check-input' disabled />
-                                            <label className="form-check-label">Votes anonymes</label>
-                                        </div>
-                                        <div className="form-check form-switch">
-                                            <input type="checkbox" className='form-check-input' disabled />
-                                            <label className="form-check-label">Voter pour soi-même</label>
-                                        </div>
+                                        <p>Vote anonyme : {anonymous === true ? "Activé" : "Désactivé"} </p>
+                                        <p>Vote pour soi-même : {self === true ? "Activé" : "Désactivé"}</p>
                                     </div>
                                 }
 
